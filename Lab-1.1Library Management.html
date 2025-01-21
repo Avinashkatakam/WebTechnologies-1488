@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Library Management</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <style>
+    #scrollToTop {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      display: none;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body ng-app="libraryApp" ng-controller="LibraryController" ng-init="initializeScroll()">
+
+<div class="container mt-5">
+  <h1 class="text-center">Library Management</h1>
+
+  <!-- Table to Display Library Data -->
+  <table class="table table-bordered table-striped mt-4">
+    <thead>
+      <tr>
+        <th>Category</th>
+        <th>Book Count</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="item in library">
+        <td>{{ item.category }}</td>
+        <td>
+          <input type="number" class="form-control" ng-model="item.count" min="0">
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Add New Category -->
+  <div class="mt-4">
+    <h4>Add New Category</h4>
+    <form ng-submit="addCategory()">
+      <div class="row g-2">
+        <div class="col-md-6">
+          <input type="text" class="form-control" placeholder="Category Name" ng-model="newCategoryName" required>
+        </div>
+        <div class="col-md-4">
+          <input type="number" class="form-control" placeholder="Initial Book Count" ng-model="newCategoryCount" min="0" required>
+        </div>
+        <div class="col-md-2">
+          <button type="submit" class="btn btn-primary w-100">Add Category</button>
+        </div>
+      </div>
+    </form>
+    <div class="text-danger mt-2" ng-show="errorMessage">{{ errorMessage }}</div>
+  </div>
+</div>
+
+<!-- Scroll to Top Button -->
+<button id="scrollToTop" class="btn btn-secondary" ng-click="scrollToTop()">⬆ Scroll to Top</button>
+
+<script>
+  // Define the AngularJS application
+  var app = angular.module("libraryApp", []);
+
+  // Define the controller
+  app.controller("LibraryController", function ($scope, $window) {
+    // Initial data for library categories
+    $scope.library = [
+      { category: "Fiction", count: 120 },
+      { category: "Non-Fiction", count: 80 },
+      { category: "Science", count: 150 },
+      { category: "Mathematics", count: 70 }
+    ];
+
+    // Variables for new category
+    $scope.newCategoryName = "";
+    $scope.newCategoryCount = "";
+    $scope.errorMessage = "";
+
+    // Function to add a new category
+    $scope.addCategory = function () {
+      // Check if the category name is unique
+      var categoryExists = $scope.library.some(function (item) {
+        return item.category.toLowerCase() === $scope.newCategoryName.toLowerCase();
+      });
+
+      if (categoryExists) {
+        $scope.errorMessage = "Category name must be unique!";
+        return;
+      }
+
+      // Add the new category to the library array
+      if ($scope.newCategoryName && $scope.newCategoryCount >= 0) {
+        $scope.library.push({
+          category: $scope.newCategoryName,
+          count: parseInt($scope.newCategoryCount, 10)
+        });
+
+        // Clear input fields and error message
+        $scope.newCategoryName = "";
+        $scope.newCategoryCount = "";
+        $scope.errorMessage = "";
+      } else {
+        $scope.errorMessage = "Please provide valid inputs.";
+      }
+    };
+
+    // Function to scroll to the top
+    $scope.scrollToTop = function () {
+      $window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    // Function to initialize scroll event listener
+    $scope.initializeScroll = function () {
+      var scrollButton = document.getElementById("scrollToTop");
+
+      // Show or hide the button based on scroll position
+      $window.onscroll = function () {
+        if ($window.pageYOffset > 200) {
+          scrollButton.style.display = "block";
+        } else {
+          scrollButton.style.display = "none";
+        }
+      };
+    };
+  });
+</script>
+
+</body>
+</html>
